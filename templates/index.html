@@ -1,0 +1,21 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+    <h1>Ciao a tutti!</h1>
+    {% if cafes == []: %}
+    <p>List is empty</p>
+    {% endif %}
+    <ul>
+        {% for cafe in cafes %}
+        <li>
+            {{cafe.name}} - {{cafe.location}}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('add_new_cafe') }}">Add new cafe</a>
+
+{% endblock %}
