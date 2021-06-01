@@ -3,19 +3,68 @@
 
 {% block title %}Home Page{% endblock %}
 
-{% block content %}
-    <h1>Ciao a tutti!</h1>
-    {% if cafes == []: %}
-    <p>List is empty</p>
-    {% endif %}
-    <ul>
-        {% for cafe in cafes %}
-        <li>
-            {{cafe.name}} - {{cafe.location}}
-        </li>
-        {% endfor %}
-    </ul>
+{% block styles %}
+{{ super() }}
+    <link rel="stylesheet" href="static/css/styles.css">
+{% endblock %}
 
-    <a href="{{ url_for('add_new_cafe') }}">Add new cafe</a>
+{% block content %}
+    <h1>My favourite list of restaurants in Florence</h1>
+
+    {% if cafes == []: %}
+    <h3>List is empty</h3>
+    {% endif %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Map</th>
+                <th scope="col">Image</th>
+                <th scope="col">City</th>
+                <th scope="col">Sockets</th>
+                <th scope="col">Toilet</th>
+                <th scope="col">Wi-Fi</th>
+                <th scope="col">Calls</th>
+                <th scope="col">Seats</th>
+                <th scope="col">Coffee Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for n in range(cafes| length) %}
+            <tr>
+                <td>{{cafes[n].name}}</td>
+                <td><a class="links" href="{{cafes[n].map_url}}">Maps Location</a></td>
+                <td><a class="links" href="{{cafes[n].img_url}}">Image</a></td>
+                <td>{{cafes[n].location}}</td>
+                {% if cafes[n].has_sockets %}
+                <td>✅</td>
+                {% else %}
+                <td>❌</td>
+                {% endif %}
+                {% if cafes[n].has_toilet %}
+                <td>✅</td>
+                {% else %}
+                <td>❌</td>
+                {% endif %}
+                {% if cafes[n].has_wifi %}
+                <td>✅</td>
+                {% else %}
+                <td>❌</td>
+                {% endif %}
+                {% if cafes[n].can_take_calls %}
+                <td>✅</td>
+                {% else %}
+                <td>❌</td>
+                {% endif %}
+                <td>{{cafes[n].seats}}</td>
+                <td>{{cafes[n].coffee_price}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-primary" href="{{ url_for('add_new_cafe') }}" role="button">Add Cafe</a>
+    <a class="btn btn-primary" href="{{ url_for('delete_cafe') }}" role="button">Delete Cafe</a>
 
 {% endblock %}

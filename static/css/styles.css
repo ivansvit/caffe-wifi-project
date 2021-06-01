@@ -1,0 +1,19 @@
+body {
+  align: center;
+  margin: 0;
+  height: 100vh;
+  color: white;
+  background-color: #333;
+}
+
+.table, h1, .btn {
+   margin: 20px;
+}
+
+.table {
+    align: left;
+}
+
+.links {
+    color: #FF9B4C;
+}

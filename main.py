@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, IntegerField, FloatField, SubmitField
+from wtforms import StringField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, URL
 
 
@@ -16,10 +16,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-# TODO Check the requirments for the project
-# TODO Create a table to display all info about cafes
-# TODO Add button Delete
-# TODO Add styles
+# TODO Change if statements for has_sockets/has_wifi etc.
 
 # ------------------------------------------ Flask Form for adding new cafe ---------------------------------------
 class NewCafeForm(FlaskForm):
@@ -31,8 +28,14 @@ class NewCafeForm(FlaskForm):
     has_toilet = BooleanField(label='Do you have WC for visitors?')
     has_wifi = BooleanField(label='Do you have WiFi?')
     can_take_calls = BooleanField(label='Can you take calls?')
-    seats = IntegerField(label='How many seats do you have?', validators=[DataRequired()])
-    coffee_price = FloatField(label='What is the price for the coffee?', validators=[DataRequired()])
+    seats = StringField(label='How many seats do you have?', validators=[DataRequired()])
+    coffee_price = StringField(label='What is the price for the coffee?', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+# --------------------------------- Flask Form for deleting cafe from database --------------------------------
+class DeleteCafe(FlaskForm):
+    name = StringField(label='Cafe Name', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -47,8 +50,8 @@ class Cafe(db.Model):
     has_toilet = db.Column(db.Boolean, false_values=None)
     has_wifi = db.Column(db.Boolean, false_values=None)
     can_take_calls = db.Column(db.Boolean, false_values=None)
-    seats = db.Column(db.Integer, nullable=True)
-    coffee_price = db.Column(db.Float, nullable=True)
+    seats = db.Column(db.String(30), nullable=True)
+    coffee_price = db.Column(db.String(30), nullable=True)
 
     def __repr__(self):
         return '<Cafe %r>' % self.name
@@ -77,7 +80,7 @@ def add_new_cafe():
             has_wifi=new_cafe_form.has_wifi.data,
             can_take_calls=new_cafe_form.can_take_calls.data,
             seats=new_cafe_form.seats.data,
-            coffee_price=new_cafe_form.coffee_price.data
+            coffee_price=f"€{new_cafe_form.coffee_price.data}"
         )
         print(new_cafe)
         db.session.add(new_cafe)
@@ -85,6 +88,22 @@ def add_new_cafe():
         return redirect(url_for('home'))
 
     return render_template('add.html', form=new_cafe_form)
+
+
+@app.route("/delete", methods=["POST", "GET"])
+def delete_cafe():
+    delete_cafe_form = DeleteCafe()
+    if delete_cafe_form.validate_on_submit():
+        cafe_name_to_delete = delete_cafe_form.name.data
+        cafe_to_delete = Cafe.query.filter_by(name=cafe_name_to_delete).first()
+        print(cafe_to_delete)
+
+        db.session.delete(cafe_to_delete)
+        db.session.commit()
+
+        return redirect(url_for('home'))
+
+    return render_template('delete.html', form=delete_cafe_form)
 
 
 if __name__ == '__main__':
